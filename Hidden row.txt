@@ -1,0 +1,239 @@
+package com.cdphp.test;
+
+import java.io.FileInputStream;
+
+import java.io.FileNotFoundException;
+
+import java.io.IOException;
+
+import java.util.ArrayList;
+
+import junit.framework.Assert;
+
+import org.apache.log4j.Logger;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import org.junit.Test;
+
+ 
+
+import com.cdphp.helpers.LoggerHelper;
+
+ 
+
+public class HideRowFoundTest extends CDPHPJUnit4Test{
+
+      protected static Logger logger = LoggerHelper.getLogger(CDPHPJUnit4Test.class.getSimpleName());
+
+ 
+
+ 
+
+      public HideRowFoundTest ()
+
+      {
+
+            super();
+
+      }
+
+      @SuppressWarnings("deprecation")
+
+ 
+
+      @Test
+
+      public void  hidddenrowsfound() {
+
+            try{
+
+                  boolean hiddenrowsfound = HideRowFoundTest.verifyHiddenrows();
+
+                  if( hiddenrowsfound)
+
+                  {
+
+                        System.out.println("Hidden row found: FAIL!");
+
+                        Assert.assertFalse(hiddenrowsfound);
+
+                  }
+
+                  else{
+
+                        System.out.println("No Hidden row found: PASS!");
+
+                  }
+
+            }catch(FileNotFoundException e){
+
+                  e.printStackTrace();
+
+                  logger.info("Exception in Junit test class--"+e.getMessage());
+
+            }
+
+      }
+
+      private static boolean verifyHiddenrows() throws FileNotFoundException
+
+      {
+
+            ArrayList<String> hiderow = new ArrayList<String>();
+
+ 
+
+            StringBuilder sb = new StringBuilder();
+
+            boolean hiddenrowsFound=false;
+
+ 
+
+            logger.info("Implementation Constructor Complete");
+
+            logger.info("Running Java Version: " + System.getProperty("java.version"));
+
+ 
+
+            String inputXLSFile = "Data/Input/PIMS_TEST_ND.xls";
+
+ 
+
+            System.out.println(inputXLSFile);
+
+ 
+
+            FileInputStream fs = new FileInputStream(inputXLSFile);
+
+ 
+
+            HSSFWorkbook ws=null;
+
+            try {
+
+                  ws = new HSSFWorkbook(fs);
+
+            } catch (IOException e) {
+
+                  e.printStackTrace();
+
+            }
+
+            HSSFSheet sheet = ws.getSheet("benefits_coverage");
+
+            int totalNoOfRows = sheet.getPhysicalNumberOfRows();
+
+            System.out.println("Count row number :"+totalNoOfRows);
+
+            if( totalNoOfRows>0) {
+
+                  int totalColumn =  sheet.getRow(0).getPhysicalNumberOfCells();
+
+                  System.out.println("Count column number :"+totalColumn);
+
+                 
+
+                  //HSSFRow row = null;
+
+                  //row.getHeight();
+
+                 
+
+                  //private Boolean isHidden(Row row)
+
+                  //{ row.getZeroHeight() }
+
+ 
+
+                 
+
+                  for (int i = 0; i<totalNoOfRows; i++) {
+
+                        String str="";
+
+                        sb.setLength(0);
+
+                        HSSFRow row1 = sheet.getRow(i);
+
+ 
+
+                        for (int j = 0 ; j <totalColumn; j++){
+
+                              if(row1!=null){
+
+                                    HSSFCell cell = row1.getCell(j);
+
+                                    int rowNumber = row1.getRowNum();
+
+                                    if(cell!=null){
+
+                                          int columnNumber=cell.getColumnIndex();
+
+                                          int type = cell.getCellType();
+
+                                          if(type==0){
+
+                                                double intValue= cell.getNumericCellValue();
+
+                                                str=String.valueOf(intValue);
+
+ 
+
+                                          }else if(type==1){
+
+                                                str=cell.getStringCellValue();
+
+                                          }
+
+                                    }
+
+                              }
+
+                              sb.append(str);
+
+                        }
+
+                        String rowValue=sb.toString();
+
+                        if (!rowValue.equals("")){
+
+                              if (hiderow.contains(rowValue)){
+
+                                    System.out.println("Hidden row found in Row----"+row1.getRowNum());
+
+                                    hiddenrowsFound = true;
+
+                              }
+
+                              else{
+
+                                    hiderow.add(rowValue);
+
+                              }
+
+                        }
+
+                  }
+
+ 
+
+                  //return hiddenrowsFound;
+
+            }
+
+            return hiddenrowsFound;                        
+
+ 
+
+      }
+
+}
+
+ 
